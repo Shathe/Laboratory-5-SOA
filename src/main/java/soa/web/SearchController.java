@@ -22,14 +22,23 @@ public class SearchController {
 
     @RequestMapping(value="/search")
     @ResponseBody
-    public Object search(@RequestParam("q") String q,
-		@RequestParam(value = "nMax", required = false) Integer nMax) {
-			Map<String,Object> headers = new HashMap<>();
-			headers.put("CamelTwitterKeywords",q); //Adding the keywords
-			if(nMax != null){
-					 //Adding the number of tweets you want
-					 headers.put("CamelTwitterCount",nMax);
-			 }
-        return producerTemplate.requestBodyAndHeaders("direct:search", "", headers);
+	public Object search(@RequestParam("q") String q) {
+	    	String[] palabras = q.split(" ");
+	    	Map<String, Object> headers = new HashMap<String, Object>();
+				String keyWords="";
+				String max=null;
+				for (int i=0; i<palabras.length;i++){
+					if(palabras[i].contains("max:")){
+						max=palabras[i].split(":")[1];
+					}
+					else{
+					keyWords+=palabras[i];
+					}
+				}
+	    	headers.put("CamelTwitterKeywords", keyWords);
+				if(max!=null){
+					headers.put("CamelTwitterCount",max);
+				}
+    	return producerTemplate.requestBodyAndHeaders("direct:search", "", headers);
     }
 }
